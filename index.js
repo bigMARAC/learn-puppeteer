@@ -19,17 +19,18 @@ const fs = require('fs');
       name: div.children[4].textContent,
       price: div.children[3].children[0].children[0].firstChild.textContent,
       url: div.children[6].children[1].children[0].children[0].children[0].href,
-      img: {
-        src: div.children[0].children[0].children[0].children[0].src,
-        alt: div.children[0].children[0].children[0].children[0].alt
-      },
+      src: div.children[0].children[0].children[0].children[0].src
     }))
     console.log(list)
     return list
   })
 
+  var date = new Date()
+  var month = date.getUTCMonth() + 1
+  var day = date.getUTCDate()
+  const dateString = `${month}-${day}`
 
-  fs.writeFile('./files/amazon.json', JSON.stringify(lista, null, 2), err => {
+  fs.writeFile(`./files/amazon-${dateString}.json`, JSON.stringify(lista, null, 2), err => {
     if(err) throw new Error('deu pau')
 
     console.log('deu bom')
