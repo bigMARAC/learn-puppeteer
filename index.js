@@ -1,28 +1,40 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 
 (async () => {
   const options = {
-    width: 1280,
-    height: 720
+    width: 1920,
+    height: 1080
   }
-  const browser = await puppeteer.launch({ headless: false, args: [`--window-size=${options.width},${options.height}`]  })
+  const browser = await puppeteer.launch()
   const page = await browser.newPage()
-  await page.goto('https://twitter.com/bigmarac/followers')
-  await page.setViewport({
-    width: options.width,
-    height: options.height
-  });
+  await page.goto('https://www.amazon.com.br/gp/goldbox')
   
-  await page.waitForSelector('.css-1dbjc4n')
+  await page.waitForSelector('.DealItem-module__dealItem_1ALQj-8DFdBjwNoMaYwM4P')
 
-  await page.evaluate(() => {
-    var input = document.querySelector('input.gLFyf.gsfi')
-    var search = document.querySelector('input.gNO89b')
-    input.setAttribute('value', 'pato careca')
-    search.click()
+  const lista = await page.evaluate(() => {
+    const nodeList = document.querySelectorAll('.DealCard-module__card_1u9yKYV4EIA-fL4ibeMVIU')
+    const itensArray = [...nodeList]
+    const list = itensArray.map(div => ({
+      name: div.children[4].textContent,
+      price: div.children[3].children[0].children[0].firstChild.textContent,
+      url: div.children[6].children[1].children[0].children[0].children[0].href,
+      img: {
+        src: div.children[0].children[0].children[0].children[0].src,
+        alt: div.children[0].children[0].children[0].children[0].alt
+      },
+    }))
+    console.log(list)
+    return list
   })
 
 
-  await page.screenshot({ path: './images/pato-careca.png' })
+  fs.writeFile('./files/amazon.json', JSON.stringify(lista, null, 2), err => {
+    if(err) throw new Error('deu pau')
+
+    console.log('deu bom')
+  })
+
+  await page.screenshot({ path: './images/amazon.jpg' })
   await browser.close()
 })();
